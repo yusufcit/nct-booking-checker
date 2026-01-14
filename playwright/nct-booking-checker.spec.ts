@@ -27,17 +27,35 @@ interface AvailableSlot {
 
 async function notifySlack(slots: AvailableSlot[]) {
   const webhook = process.env.SLACK_WEBHOOK_URL;
-  if (!webhook || slots.length === 0) return;
+  const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+  
+  console.log(`[Slack] webhook=${!!webhook}, slots=${slots.length}, isGitHubActions=${isGitHubActions}`);
+  
+  if (!webhook || slots.length === 0 || !isGitHubActions) {
+    console.log('[Slack] Skipping notification');
+    return;
+  }
+  
   const text = [
     '🎉 NCT slots within 14 days:',
     ...slots.map(s => `• ${s.center}: ${s.date}`)
   ].join('\n');
 
-  await fetch(webhook, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text })
-  });
+  try {
+    const response = await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    
+    if (response.ok) {
+      console.log('[Slack] ✓ Notification sent successfully');
+    } else {
+      console.log(`[Slack] ✗ Failed with status ${response.status}: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('[Slack] ✗ Error sending notification:', error);
+  }
 }
 
 test.describe('NCT Booking Availability Checker', () => {
@@ -61,7 +79,7 @@ test.describe('NCT Booking Availability Checker', () => {
     const availableSlots: AvailableSlot[] = [];
     const currentDate = new Date();
     const fourteenDaysFromNow = new Date();
-    fourteenDaysFromNow.setDate(currentDate.getDate() + 14);
+    fourteenDaysFromNow.setDate(currentDate.getDate() + 114);
 
     // Step 1: Go to NCT website
     await page.goto('https://www.ncts.ie/');
