@@ -28,4 +28,5 @@ jobs:
         env:
           CAR_REGISTRATION: ${{ secrets.CAR_REGISTRATION }}
           BOOKING_ID: ${{ secrets.BOOKING_ID }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: npx playwright test playwright/nct-booking-checker.spec.ts

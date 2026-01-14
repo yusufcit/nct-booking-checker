@@ -25,6 +25,21 @@ interface AvailableSlot {
   date: string;
 }
 
+async function notifySlack(slots: AvailableSlot[]) {
+  const webhook = process.env.SLACK_WEBHOOK_URL;
+  if (!webhook || slots.length === 0) return;
+  const text = [
+    '🎉 NCT slots within 14 days:',
+    ...slots.map(s => `• ${s.center}: ${s.date}`)
+  ].join('\n');
+
+  await fetch(webhook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+}
+
 test.describe('NCT Booking Availability Checker', () => {
   test('Check NCT booking availability for multiple centers', async ({ page }) => {
     test.setTimeout(120000); // Increase timeout to 2 minutes
@@ -168,6 +183,7 @@ test.describe('NCT Booking Availability Checker', () => {
         console.log(`  - ${slot.center}: ${slot.date}`);
       });
       console.log('\n✓ Check complete - slots saved above');
+      await notifySlack(availableSlots);
     } else {
       console.log('\n❌ No slots available within 14 days from current date.');
     }
