@@ -1,22 +1,31 @@
-name: NCT Checker
+name: NCT Booking Checker
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Every 30 minutes
+    - cron: '*/40 * * * *'  # Every 40 minutes
   workflow_dispatch:  # Manual trigger
 
 jobs:
-  check:
+  check-availability:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
       
-      - run: npm ci
-      - run: npx playwright install chromium
+      - name: Install dependencies
+        run: npm ci
       
-      - run: npx playwright test playwright/nct-booking-checker.spec.ts
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+      
+      - name: Run NCT availability check
         env:
           CAR_REGISTRATION: ${{ secrets.CAR_REGISTRATION }}
+          BOOKING_ID: ${{ secrets.BOOKING_ID }}
+        run: npx playwright test playwright/nct-booking-checker.spec.ts
