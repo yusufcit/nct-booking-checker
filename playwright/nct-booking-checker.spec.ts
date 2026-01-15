@@ -79,7 +79,7 @@ test.describe('NCT Booking Availability Checker', () => {
     const availableSlots: AvailableSlot[] = [];
     const currentDate = new Date();
     const fourteenDaysFromNow = new Date();
-    fourteenDaysFromNow.setDate(currentDate.getDate() + 114);
+    fourteenDaysFromNow.setDate(currentDate.getDate() + 14);
 
     // Step 1: Go to NCT website
     await page.goto('https://www.ncts.ie/');
