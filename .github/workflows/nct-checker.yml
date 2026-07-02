@@ -2,7 +2,7 @@ name: NCT Booking Checker
 
 on:
   schedule:
-    - cron: '*/40 * * * *'  # Every 40 minutes
+    - cron: '*/30 * * * *'  # Every 40 minutes
   workflow_dispatch:  # Manual trigger
 
 jobs:
